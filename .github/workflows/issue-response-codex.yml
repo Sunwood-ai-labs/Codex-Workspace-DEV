@@ -26,7 +26,7 @@ jobs:
       
       - name: Install OpenAI Codex
         run: |
-          npm install -g @openai/codex  # 正しいパッケージ名に修正
+          npm install -g @openai/codex
         
       - name: Process issue with Codex
         env:
@@ -52,8 +52,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Codexが生成した返信を探して投稿
-            // 実際の実装はCodexの出力形式に合わせて調整が必要
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -61,25 +59,16 @@ jobs:
               body: '自動応答: このissueを確認しました。対応を検討中です。'
             })
       
-      - name: Create PR if needed
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
-          if [[ -n $(git status -s) ]]; then
-            # タイムスタンプを使って一意のブランチ名を生成
-            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-            BRANCH_NAME="fix-issue-${{ github.event.issue.number }}-${TIMESTAMP}"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Auto: Codexによるissue対応 #${{ github.event.issue.number }}"
+          branch: "fix-issue-${{ github.event.issue.number }}"
+          delete-branch: true
+          title: "Fix issue #${{ github.event.issue.number }}"
+          body: |
+            Fixes #${{ github.event.issue.number }}
             
-            git checkout -b $BRANCH_NAME
-            git add .
-            git commit -m "Auto: Codexによるissue対応 #${{ github.event.issue.number }}"
-            git push origin $BRANCH_NAME
-            
-            # GitHub CLIを使ってPRを作成
-            gh pr create --title "Fix issue #${{ github.event.issue.number }}" \
-                        --body "Fixes #${{ github.event.issue.number }}" \
-                        --base main
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            このPRはissue #${{ github.event.issue.number }} に対するCodexによる自動対応です。
+          base: main
