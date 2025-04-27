@@ -1,0 +1,127 @@
+name: Test Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_file:
+        description: 'テスト対象のファイルパス'
+        required: true
+        type: string
+      test_type:
+        description: 'テストのタイプ'
+        required: true
+        type: choice
+        options:
+          - unit
+          - integration
+          - e2e
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.py'
+      - 'src/**/*.ts'
+      - '!tests/**'
+
+jobs:
+  generate-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Codex
+        run: npm install -g @openai/codex
+      
+      - name: テストファイルの検出
+        id: detect-files
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "files=${{ github.event.inputs.target_file }}" >> $GITHUB_OUTPUT
+          else
+            # 変更されたファイルを検出（プッシュイベントの場合）
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E 'src/.*\.(js|py|ts)$' | tr '\n' ' ')
+            echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: テスト生成
+        if: steps.detect-files.outputs.files != ''
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_QUIET_MODE: 1
+        run: |
+          # テストタイプの設定
+          TEST_TYPE="${{ github.event.inputs.test_type }}"
+          if [ -z "$TEST_TYPE" ]; then
+            TEST_TYPE="unit"  # デフォルトはユニットテスト
+          fi
+          
+          # 各ファイルに対してテストを生成
+          for file in ${{ steps.detect-files.outputs.files }}; do
+            echo "Generating tests for: $file"
+            
+            # ファイル拡張子に基づいてテストフレームワークを決定
+            extension="${file##*.}"
+            case "$extension" in
+              js|ts)
+                FRAMEWORK="Jest"
+                ;;
+              py)
+                FRAMEWORK="pytest"
+                ;;
+              *)
+                echo "Unsupported file type: $extension"
+                continue
+                ;;
+            esac
+            
+            # Codexにテスト生成を依頼
+            codex -a auto-edit --quiet "Generate comprehensive $TEST_TYPE tests for $file using $FRAMEWORK. \
+            - Create a corresponding test file in the tests/ directory \
+            - Follow the naming convention appropriate for the testing framework \
+            - Test all public functions, methods, and edge cases \
+            - Include setup and teardown functions if needed \
+            - Add mock data and fixtures where appropriate \
+            - Ensure 100% code coverage where possible \
+            - Include comments explaining test scenarios"
+          done
+      
+      - name: PRの作成
+        if: steps.detect-files.outputs.files != ''
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "test: add ${{ github.event.inputs.test_type || 'unit' }} tests for recent changes"
+          title: "[Codex] Generated ${{ github.event.inputs.test_type || 'unit' }} tests"
+          body: |
+            ## 🧪 自動生成テスト
+            
+            **タイプ:** ${{ github.event.inputs.test_type || 'unit' }}
+            **対象ファイル:** 
+            ```
+            ${{ steps.detect-files.outputs.files }}
+            ```
+            
+            Codexが最近の変更に対してテストを自動生成しました。
+            
+            ### レビューポイント
+            - テストケースの網羅性
+            - エッジケースの考慮
+            - モックの適切性
+            - テストの読みやすさ
+            
+            ### 次のステップ
+            1. 生成されたテストをレビュー
+            2. 必要に応じて修正
+            3. テストを実行して確認
+            4. 問題なければマージ
+          branch: codex/tests-${{ github.run_number }}
+          delete-branch: true

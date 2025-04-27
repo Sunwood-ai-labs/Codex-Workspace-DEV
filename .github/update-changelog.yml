@@ -1,0 +1,60 @@
+name: Update CHANGELOG
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'バージョン (例: v1.0.0)'
+        required: true
+        type: string
+  push:
+    branches:
+      - main
+    paths:
+      - '!CHANGELOG.md'  # CHANGELOG.md自体の更新では実行しない
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 全履歴を取得
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Codex
+        run: npm install -g @openai/codex
+      
+      - name: 更新履歴を生成
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_QUIET_MODE: 1
+        run: |
+          # 手動トリガーの場合はversion inputを使用
+          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            # 自動実行の場合は最新のタグを取得
+            VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
+          fi
+          
+          # CodexにCHANGELOGの更新を依頼
+          codex -a auto-edit --quiet "Update CHANGELOG.md for version $VERSION. \
+          Analyze the git commit history since the last release and create or update \
+          the changelog section with the following format: \
+          - Use semantic versioning \
+          - Group changes by category (Added, Changed, Fixed, Removed) \
+          - Write concise, user-friendly descriptions \
+          - Include the date (YYYY-MM-DD) \
+          - Keep the existing format intact"
+      
+      - name: 変更をコミット
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "docs: update CHANGELOG for ${{ github.event.inputs.version || 'next release' }}"
+          git push
