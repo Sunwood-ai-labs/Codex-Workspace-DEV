@@ -1,6 +1,6 @@
 <div align="center">
 
-![Image](https://github.com/user-attachments/assets/301c0690-958e-4800-aaae-25f0ee26f3df)
+![Image](https://github.com/user-attachments/assets/55514756-c91e-4fe6-8204-73b73aa0bcbf)
 
 # 🤖 シンプルなGitHub Actions with Codex
 
