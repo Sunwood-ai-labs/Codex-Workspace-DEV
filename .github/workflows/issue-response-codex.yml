@@ -35,21 +35,18 @@ jobs:
           CODEX_QUIET_MODE: "1"
         run: |
           # Codexを使ってissueに対応
-          codex -a auto-edit "$(cat << 'EOF'
-          このissueに対応してください：
-          Issue番号: #${{ github.event.issue.number }}
-          タイトル: ${{ github.event.issue.title }}
-          内容: ${{ github.event.issue.body }}
-
-          以下のアクションを実行してください：
-          1. issueの内容を分析して、適切な返信をGitHubのissueにコメントとして投稿
-          2. コードの修正が必要な場合は、新しいブランチを作成し、修正コードを適用してプルリクエストを作成
-          3. ドキュメントの改善が必要な場合は、READMEを更新してプルリクエストを作成
-          4. このすべての操作を自動で行う
-
-          重要: GitHubのトークンは環境変数 GITHUB_TOKEN で利用可能です。
-          EOF
-          )"
+          codex -a auto-edit --quiet "このissueに対応してください： \
+          Issue番号: #${{ github.event.issue.number }} \
+          タイトル: ${{ github.event.issue.title }} \
+          内容: ${{ github.event.issue.body }} \
+          \
+          以下のアクションを実行してください： \
+          1. issueの内容を分析して、適切な返信をGitHubのissueにコメントとして投稿 \
+          2. コードの修正が必要な場合は、新しいブランチを作成し、修正コードを適用してプルリクエストを作成 \
+          3. ドキュメントの改善が必要な場合は、READMEを更新してプルリクエストを作成 \
+          4. このすべての操作を自動で行う \
+          \
+          重要: GitHubのトークンは環境変数 GITHUB_TOKEN で利用可能です。"
       
       - name: Commit and push changes (if any)
         run: |
