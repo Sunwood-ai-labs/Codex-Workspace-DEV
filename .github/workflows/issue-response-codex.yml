@@ -17,42 +17,65 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       
       - name: Install OpenAI Codex
         run: |
-          npm install -g codex
+          npm install -g @openai/codex  # 正しいパッケージ名に修正
         
       - name: Process issue with Codex
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_QUIET_MODE: "1"
         run: |
           # Codexを使ってissueに対応
-          codex --full-auto "このissueに対応してください： \
-          Issue番号: #${{ github.event.issue.number }} \
-          タイトル: ${{ github.event.issue.title }} \
-          内容: ${{ github.event.issue.body }} \
-          \
-          以下のアクションを実行してください： \
-          1. issueの内容を分析して、適切な返信をGitHubのissueにコメントとして投稿 \
-          2. コードの修正が必要な場合は、新しいブランチを作成し、修正コードを適用してプルリクエストを作成 \
-          3. ドキュメントの改善が必要な場合は、READMEを更新してプルリクエストを作成 \
-          4. このすべての操作を自動で行う \
-          \
-          重要: GitHubのトークンは環境変数 GITHUB_TOKEN で利用可能でghコマンドを使用して対応して。"
+          codex -a auto-edit --quiet "このissueに対応してください：
+          Issue番号: #${{ github.event.issue.number }}
+          タイトル: ${{ github.event.issue.title }}
+          内容: ${{ github.event.issue.body }}
+          
+          以下のアクションを実行してください：
+          1. issueの内容を分析して、適切な返信を作成
+          2. コードの修正が必要な場合は、修正ファイルを作成
+          3. ドキュメントの改善が必要な場合は、READMEを更新
+          
+          重要: 実際のGitHub操作（コメント投稿やPR作成）は別のステップで行うため、
+          この段階では修正内容の準備のみを行ってください。"
       
-      - name: Commit and push changes (if any)
+      - name: Post comment to issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Codexが生成した返信を探して投稿
+            // 実際の実装はCodexの出力形式に合わせて調整が必要
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '自動応答: このissueを確認しました。対応を検討中です。'
+            })
+      
+      - name: Create PR if needed
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
           if [[ -n $(git status -s) ]]; then
+            git checkout -b fix-issue-${{ github.event.issue.number }}
             git add .
             git commit -m "Auto: Codexによるissue対応 #${{ github.event.issue.number }}"
-            git push
+            git push origin fix-issue-${{ github.event.issue.number }}
+            
+            # GitHub CLIを使ってPRを作成
+            gh pr create --title "Fix issue #${{ github.event.issue.number }}" \
+                        --body "Fixes #${{ github.event.issue.number }}" \
+                        --base main
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
