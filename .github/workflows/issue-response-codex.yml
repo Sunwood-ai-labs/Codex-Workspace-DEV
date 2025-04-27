@@ -67,10 +67,14 @@ jobs:
           git config --local user.name "github-actions[bot]"
           
           if [[ -n $(git status -s) ]]; then
-            git checkout -b fix-issue-${{ github.event.issue.number }}
+            # タイムスタンプを使って一意のブランチ名を生成
+            TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+            BRANCH_NAME="fix-issue-${{ github.event.issue.number }}-${TIMESTAMP}"
+            
+            git checkout -b $BRANCH_NAME
             git add .
             git commit -m "Auto: Codexによるissue対応 #${{ github.event.issue.number }}"
-            git push origin fix-issue-${{ github.event.issue.number }}
+            git push origin $BRANCH_NAME
             
             # GitHub CLIを使ってPRを作成
             gh pr create --title "Fix issue #${{ github.event.issue.number }}" \
