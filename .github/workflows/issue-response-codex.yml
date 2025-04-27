@@ -35,7 +35,7 @@ jobs:
           CODEX_QUIET_MODE: "1"
         run: |
           # Codexを使ってissueに対応
-          codex --full-auto --quiet "このissueに対応してください： \
+          codex --full-auto "このissueに対応してください： \
           Issue番号: #${{ github.event.issue.number }} \
           タイトル: ${{ github.event.issue.title }} \
           内容: ${{ github.event.issue.body }} \
