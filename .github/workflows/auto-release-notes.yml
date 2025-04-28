@@ -25,13 +25,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_QUIET_MODE: "1"  # 追加: quietモードを有効化
+          CODEX_NO_TTY: "1"      # 追加: TTYを無効化
         run: |
           # 現在のタグと前のタグを取得
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
           
           # Codexにリリースノートを作成させ、ghコマンドでリリースを作成させる
-          codex -a auto-edit "以下の情報を使ってリリースノートを作成し、ghコマンドでGitHubリリースを作成してください：
+          codex -a auto-edit  --quiet "以下の情報を使ってリリースノートを作成し、ghコマンドでGitHubリリースを作成してください：
           
           現在のタグ: ${CURRENT_TAG}
           前回のタグ: ${PREVIOUS_TAG}
