@@ -25,7 +25,7 @@ jobs:
       
       - name: Install OpenAI Codex
         run: |
-          npm install -g codex
+          npm install -g @openai/codex
         
       - name: Translate README with Codex
         env:
