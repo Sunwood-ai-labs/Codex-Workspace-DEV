@@ -25,7 +25,7 @@ jobs:
       
       - name: Install OpenAI Codex
         run: |
-          npm install -g codex
+          npm install -g @openai/codex
         
       - name: Translate README with Codex
         env:
@@ -33,44 +33,47 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           CODEX_QUIET_MODE: "1"
         run: |
-          # Codexを使ってREADMEを日本語に翻訳
-          codex -a auto-edit "$(cat << 'EOF'
-          README.mdを日本語に翻訳してください。
+          # READMEを英語に翻訳するためにCodexを使用
+          codex -a auto-edit  --quiet "
+          README.mdを英語に翻訳してください。
           
           以下の要件に従って翻訳してください：
           
           1. 元のマークダウン形式を維持
-          2. 技術用語は適切な日本語または英語のまま維持
+          2. 技術用語は適切な英語で表現
           3. 絵文字はそのまま維持
           4. バッジやリンクは変更しない
           5. コードブロックの内容は翻訳しない
           
-          翻訳後のファイルは README.ja.md として保存してください。
+          翻訳後のファイルは README.en.md として保存してください。
           その後、以下の作業を行ってください：
           
           1. 新しいブランチを作成
-          2. README.ja.md をコミット
+          2. README.en.md をコミット
           3. プルリクエストを作成
           4. PRの説明文に翻訳の品質に関する簡単なサマリーを記載
           
           重要: GitHubのトークンは環境変数 GITHUB_TOKEN で利用可能です。
-          EOF
-          )"
+          "
       
       - name: Create PR if translation is created
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_QUIET_MODE: "1"
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          if [ -f "README.ja.md" ]; then
-            BRANCH_NAME="docs/translate-readme-$(date +%Y%m%d-%H%M%S)"
+          if [ -f "README.en.md" ]; then
+            BRANCH_NAME="docs/translate-readme-en-$(date +%Y%m%d-%H%M%S)"
             git checkout -b $BRANCH_NAME
-            git add README.ja.md
-            git commit -m "docs: READMEを日本語に翻訳"
+            git add README.en.md
+            git commit -m "docs: READMEを英語に翻訳"
             git push origin $BRANCH_NAME
             
-            gh pr create --title "docs: READMEを日本語に翻訳" \
-                         --body "CodexによってREADMEを日本語に翻訳しました。" \
-                         --base main \
+            gh pr create --title "📄 docs: READMEを英語に翻訳" \
+                         --body "CodexによってREADMEを英語に翻訳しました。" \
+                         --base develop \
                          --head $BRANCH_NAME
           fi

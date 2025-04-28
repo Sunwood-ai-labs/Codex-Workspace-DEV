@@ -29,13 +29,33 @@
 
 ## 📦 セットアップ
 
-### 1. シークレットの設定
+以下の手順に従い、リポジトリを初期化し、必要な環境変数やシークレットを設定してください。
 
-リポジトリの設定で以下のシークレットを追加してください：
+### 1. リポジトリをクローン
 
-- `OPENAI_API_KEY`: OpenAI APIキー
+```bash
+git clone https://github.com/<USERNAME>/<REPO>.git
+cd <REPO>
+```
 
-### 2. ワークフローの有効化
+### 2. .envファイルの作成
+
+```bash
+cp .env.example .env
+```
+`.env`ファイルを開き、以下の環境変数を設定してください：
+
+* `OPENAI_API_KEY`    : OpenAI APIキー  
+* `GITHUB_TOKEN`      : GitHub APIトークン（省略可、GitHub Actionsでは自動で提供されます）  
+* `CODEX_QUIET_MODE`  : Codexのクワイエットモード（例: `1`）  
+
+### 3. シークレットの設定（GitHub Actions用）
+
+GitHubリポジトリの Settings > Secrets で以下を追加してください：
+
+* `OPENAI_API_KEY` : OpenAI APIキー  
+
+### 4. ワークフローの有効化
 
 `.github/workflows/` にあるワークフローファイルが自動的に有効になります。
 
