@@ -3,7 +3,7 @@ name: Auto Release Notes with Codex
 on:
   push:
     tags:
-      - 'v*'  # v1.0.0, v2.1.3 などのタグがプッシュされた時に実行
+      - 'v*'
 
 permissions:
   contents: write
@@ -16,24 +16,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 全履歴を取得して差分を比較できるようにする
+          fetch-depth: 0
       
       - name: Install OpenAI Codex
         run: npm install -g @openai/codex
         
-      - name: Generate and Post Release Notes
+      - name: Generate Release Notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          CODEX_QUIET_MODE: "1"  # 追加: quietモードを有効化
-          CODEX_NO_TTY: "1"      # 追加: TTYを無効化
+          CODEX_QUIET_MODE: "1"
+          CODEX_NO_TTY: "1"
         run: |
           # 現在のタグと前のタグを取得
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
           
-          # Codexにリリースノートを作成させ、ghコマンドでリリースを作成させる
-          codex -a auto-edit  --quiet "以下の情報を使ってリリースノートを作成し、ghコマンドでGitHubリリースを作成してください：
+          # Codexにリリースノートの生成のみを指示
+          codex -a auto-edit --quiet "以下の情報を使ってリリースノートを作成し、release_notes.mdファイルに保存してください：
           
           現在のタグ: ${CURRENT_TAG}
           前回のタグ: ${PREVIOUS_TAG}
@@ -45,8 +45,7 @@ jobs:
              - バグ修正
              - 破壊的変更
              - その他の改善
-          3. ghコマンドでリリースを作成：
-             gh release create ${CURRENT_TAG} --title 'Release ${CURRENT_TAG}' --notes '作成したリリースノート'
+          3. リリースノートをrelease_notes.mdファイルに保存
           
           リリースノートは以下の形式でフォーマットしてください：
           # Release ${CURRENT_TAG}
@@ -63,4 +62,29 @@ jobs:
           ## 📝 その他の改善
           - 改善内容の説明
           
-          前回のタグが存在しない場合は、初回リリースとして適切なメッセージを作成してください。"
+          前回のタグが存在しない場合は、初回リリースとして適切なメッセージを作成してください。
+          
+          ファイルの作成は以下のように実行してください：
+          echo '# Release ${CURRENT_TAG}' > release_notes.md
+          echo '' >> release_notes.md
+          # ... (他の内容) ...
+          "
+      
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          # release_notes.mdが存在する場合はそれを使用
+          if [ -f release_notes.md ]; then
+            gh release create ${CURRENT_TAG} --title "Release ${CURRENT_TAG}" --notes-file release_notes.md
+          else
+            # Codexが失敗した場合のフォールバック
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
+            if [ -n "$PREVIOUS_TAG" ]; then
+              git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" > fallback_notes.md
+            else
+              echo "初回リリース" > fallback_notes.md
+            fi
+            gh release create ${CURRENT_TAG} --title "Release ${CURRENT_TAG}" --notes-file fallback_notes.md
+          fi
