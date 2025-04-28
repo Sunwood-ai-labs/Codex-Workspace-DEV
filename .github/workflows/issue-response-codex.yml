@@ -20,8 +20,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Install OpenAI Codex
-        run: |
-          npm install -g @openai/codex  # 正しいパッケージ名に修正
+        run: npm install -g @openai/codex
         
       - name: Analyze and Plan
         env:
@@ -47,37 +46,16 @@ jobs:
           git add .
           git commit -m "Auto: Issue #${{ github.event.issue.number }} の対応" || echo "No changes to commit"
           
-          重要: 実際のGitHub操作（コメント投稿やPR作成）は別のステップで行うため、
-          この段階では修正内容の準備のみを行ってください。"
-      
-      - name: Post comment to issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            // Codexが生成した返信を探して投稿
-            // 実際の実装はCodexの出力形式に合わせて調整が必要
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '自動応答: このissueを確認しました。対応を検討中です。'
-            })
-      
-      - name: Create PR if needed
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
-          if [[ -n $(git status -s) ]]; then
-            git checkout -b fix-issue-${{ github.event.issue.number }}
-            git add .
-            git commit -m "Auto: Codexによるissue対応 #${{ github.event.issue.number }}"
-            git push origin fix-issue-${{ github.event.issue.number }}
-            
-            # GitHub CLIを使ってPRを作成
-            gh pr create --title "Fix issue #${{ github.event.issue.number }}" \
-                        --body "Fixes #${{ github.event.issue.number }}" \
-                        --base main
-          fi
+      - name: Create PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # Codexにプルリクエストを作成させる
+          codex -a auto-edit "以下のghコマンドを使ってプルリクエストを作成してください：
+          
+          1. 新しいブランチにpush: git push origin HEAD:fix-issue-${{ github.event.issue.number }}
+          2. ghコマンドでPR作成: gh pr create --title 'タイトル' --body '本文' --base main --head fix-issue-${{ github.event.issue.number }}
+          3. PRの本文にはissue番号を含めて: Fixes #${{ github.event.issue.number }}
+          
+          issueに対する進捗報告もghコマンドでコメントしてください。"
