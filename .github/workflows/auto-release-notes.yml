@@ -21,6 +21,33 @@ jobs:
       - name: Install OpenAI Codex
         run: npm install -g @openai/codex
         
+      - name: Generate Diff File
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 現在のタグと前のタグを取得
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
+          
+          # タグ間の差分を生成してファイルに保存
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "タグ間の差分を生成中: ${PREVIOUS_TAG}..${CURRENT_TAG}"
+            git diff ${PREVIOUS_TAG}..${CURRENT_TAG} > diff.txt
+            echo "コミットログを生成中: ${PREVIOUS_TAG}..${CURRENT_TAG}"
+            git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"%h - %s%n%b%n" > commits.txt
+          else
+            echo "初回リリース: すべての変更を含めます"
+            git diff $(git rev-list --max-parents=0 HEAD)..HEAD > diff.txt
+            git log --pretty=format:"%h - %s%n%b%n" > commits.txt
+          fi
+          
+          # 変更されたファイルのリストを生成
+          if [ -n "$PREVIOUS_TAG" ]; then
+            git diff --name-status ${PREVIOUS_TAG}..${CURRENT_TAG} > changed_files.txt
+          else
+            git diff --name-status $(git rev-list --max-parents=0 HEAD)..HEAD > changed_files.txt
+          fi
+      
       - name: Generate Release Notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,19 +59,24 @@ jobs:
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
           PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
           
-          # Codexにリリースノートの生成のみを指示
+          # Codexにリリースノートの生成を指示
           codex -a auto-edit --quiet "以下の情報を使ってリリースノートを作成し、release_notes.mdファイルに保存してください：
           
           現在のタグ: ${CURRENT_TAG}
           前回のタグ: ${PREVIOUS_TAG}
           
           実行してください：
-          1. gitコマンドで2つのタグ間の差分を取得
-          2. コミットログとファイル変更を分析して、以下を含むリリースノートを作成：
+          1. 以下のファイルを読み込んで分析してください:
+             - diff.txt: 2つのタグ間のコード差分
+             - commits.txt: コミットログ
+             - changed_files.txt: 変更されたファイルのリスト
+          
+          2. これらのファイルを分析して、以下を含むリリースノートを作成：
              - 新機能
              - バグ修正
              - 破壊的変更
              - その他の改善
+          
           3. リリースノートをrelease_notes.mdファイルに保存
           
           リリースノートは以下の形式でフォーマットしてください：
@@ -64,11 +96,25 @@ jobs:
           
           前回のタグが存在しない場合は、初回リリースとして適切なメッセージを作成してください。
           
+          コミットメッセージから以下のパターンを検出して分類してください：
+          - 'feat:'または'feature:'で始まるもの → 新機能
+          - 'fix:'で始まるもの → バグ修正
+          - 'breaking:'または'BREAKING CHANGE'を含むもの → 破壊的変更
+          - その他 → その他の改善
+          
           ファイルの作成は以下のように実行してください：
           echo '# Release ${CURRENT_TAG}' > release_notes.md
           echo '' >> release_notes.md
           # ... (他の内容) ...
           "
+          
+          # デバッグ用にリリースノートの内容を表示
+          if [ -f release_notes.md ]; then
+            echo "生成されたリリースノート:"
+            cat release_notes.md
+          else
+            echo "リリースノートの生成に失敗しました"
+          fi
       
       - name: Create Release
         env:
@@ -80,11 +126,15 @@ jobs:
             gh release create ${CURRENT_TAG} --title "Release ${CURRENT_TAG}" --notes-file release_notes.md
           else
             # Codexが失敗した場合のフォールバック
+            echo "# Release ${CURRENT_TAG}" > fallback_notes.md
+            echo "" >> fallback_notes.md
             PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
             if [ -n "$PREVIOUS_TAG" ]; then
-              git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" > fallback_notes.md
+              echo "## コミット一覧" >> fallback_notes.md
+              git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" >> fallback_notes.md
             else
-              echo "初回リリース" > fallback_notes.md
+              echo "## 初回リリース" >> fallback_notes.md
+              echo "このリポジトリの初回リリースです。" >> fallback_notes.md
             fi
             gh release create ${CURRENT_TAG} --title "Release ${CURRENT_TAG}" --notes-file fallback_notes.md
           fi
