@@ -1,4 +1,4 @@
-name: Issue Response Bot (Codex)
+name: Issue Response Bot (Codex with gh)
 
 on:
   issues:
@@ -19,56 +19,43 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
       - name: Install OpenAI Codex
-        run: |
-          npm install -g @openai/codex
+        run: npm install -g @openai/codex
         
-      - name: Process issue with Codex
+      - name: Analyze and Plan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          CODEX_QUIET_MODE: "1"
         run: |
-          # Codexを使ってissueに対応
-          codex -a auto-edit --quiet "このissueに対応してください：
+          # Codexに計画を立てさせ、issueにコメントさせる
+          codex -a auto-edit "以下のissueに対する対応計画を立て、ghコマンドでコメントしてください：
+          
           Issue番号: #${{ github.event.issue.number }}
           タイトル: ${{ github.event.issue.title }}
           内容: ${{ github.event.issue.body }}
           
-          以下のアクションを実行してください：
-          1. issueの内容を分析して、適切な返信を作成
-          2. コードの修正が必要な場合は、修正ファイルを作成
-          3. ドキュメントの改善が必要な場合は、READMEを更新
+          実行してください：
+          1. issueを分析して対応方針を決定
+          2. ghコマンドで計画をissueにコメント (例: gh issue comment #番号 --body '内容')
+          3. 必要なコード修正やドキュメント更新を実施"
+      
+      - name: Commit changes
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add .
+          git commit -m "Auto: Issue #${{ github.event.issue.number }} の対応" || echo "No changes to commit"
           
-          重要: 実際のGitHub操作（コメント投稿やPR作成）は別のステップで行うため、
-          この段階では修正内容の準備のみを行ってください。"
-      
-      - name: Post comment to issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '自動応答: このissueを確認しました。対応を検討中です。'
-            })
-      
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Auto: Codexによるissue対応 #${{ github.event.issue.number }}"
-          branch: "fix-issue-${{ github.event.issue.number }}"
-          delete-branch: true
-          title: "Fix issue #${{ github.event.issue.number }}"
-          body: |
-            Fixes #${{ github.event.issue.number }}
-            
-            このPRはissue #${{ github.event.issue.number }} に対するCodexによる自動対応です。
-          base: main
+      - name: Create PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # Codexにプルリクエストを作成させる
+          codex -a auto-edit "以下のghコマンドを使ってプルリクエストを作成してください：
+          
+          1. 新しいブランチにpush: git push origin HEAD:fix-issue-${{ github.event.issue.number }}
+          2. ghコマンドでPR作成: gh pr create --title 'タイトル' --body '本文' --base main --head fix-issue-${{ github.event.issue.number }}
+          3. PRの本文にはissue番号を含めて: Fixes #${{ github.event.issue.number }}
+          
+          issueに対する進捗報告もghコマンドでコメントしてください。"
