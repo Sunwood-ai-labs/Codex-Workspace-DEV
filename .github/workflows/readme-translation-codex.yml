@@ -74,6 +74,6 @@ jobs:
             
             gh pr create --title "📄 docs: READMEを英語に翻訳" \
                          --body "CodexによってREADMEを英語に翻訳しました。" \
-                         --base main \
+                         --base develop \
                          --head $BRANCH_NAME
           fi
