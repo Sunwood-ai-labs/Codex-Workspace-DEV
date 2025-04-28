@@ -80,7 +80,7 @@ jobs:
           3. リリースノートをrelease_notes.mdファイルに保存
           
           リリースノートは以下の形式でフォーマットしてください：
-          # Release ${CURRENT_TAG}:
+          # Release ${CURRENT_TAG}: [リリースノートのタイトルをここに記入]
           
           ## 🚀 新機能
           - 機能の説明
