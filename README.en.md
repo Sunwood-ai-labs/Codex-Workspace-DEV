@@ -1,3 +1,6 @@
+<p align="right">
+  <a href="./README.md">日本語</a>
+</p>
 <div align="center">
 
 ![Image](https://github.com/user-attachments/assets/55514756-c91e-4fe6-8204-73b73aa0bcbf)
@@ -15,6 +18,18 @@
 </p>
 
 </div>
+
+## 📖 Table of Contents
+
+- [🚀 Overview](#🚀-overview)
+- [✨ Features](#✨-features)
+- [📦 Setup](#📦-setup)
+- [🛠️ Usage](#🛠️-usage)
+- [⚙️ Workflow List](#⚙️-workflow-list)
+- [🔧 Customization](#🔧-customization)
+- [📝 Important Notes](#📝-important-notes)
+- [🤝 Contributing](#🤝-contributing)
+- [📄 License](#📄-license)
 
 ## 🚀 Overview
 
