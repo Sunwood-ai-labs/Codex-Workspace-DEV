@@ -34,7 +34,7 @@ jobs:
           CODEX_QUIET_MODE: "1"
         run: |
           # READMEを英語に翻訳するためにCodexを使用
-          codex -a auto-edit "$(cat << 'EOF'
+          codex -a auto-edit  --quiet "
           README.mdを英語に翻訳してください。
           
           以下の要件に従って翻訳してください：
@@ -54,8 +54,7 @@ jobs:
           4. PRの説明文に翻訳の品質に関する簡単なサマリーを記載
           
           重要: GitHubのトークンは環境変数 GITHUB_TOKEN で利用可能です。
-          EOF
-          )"
+          "
       
       - name: Create PR if translation is created
         run: |
