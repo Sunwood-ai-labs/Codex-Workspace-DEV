@@ -77,11 +77,11 @@ jobs:
             BRANCH_NAME="docs/quality-improvement-$(date +%Y%m%d-%H%M%S)"
             git checkout -b $BRANCH_NAME
             git add .
-            git commit -m "docs: ドキュメント品質の自動改善"
+            git commit -m "🫐 docs: ドキュメント品質の自動改善"
             git push origin $BRANCH_NAME
             
             # プルリクエストのコメントを作成
-            gh pr create --title "docs: ドキュメント品質の自動改善" \
+            gh pr create --title "🫐 docs: ドキュメント品質の自動改善" \
                          --body "Codexによるドキュメント品質チェックを実行し、いくつかの改善を行いました。" \
                          --base main \
                          --head $BRANCH_NAME
