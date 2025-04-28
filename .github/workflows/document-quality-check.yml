@@ -28,7 +28,7 @@ jobs:
       
       - name: Install OpenAI Codex
         run: |
-          npm install -g codex
+          npm install -g @openai/codex
         
       - name: Check documentation quality with Codex
         env:
