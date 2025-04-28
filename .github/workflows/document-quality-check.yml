@@ -37,7 +37,7 @@ jobs:
           CODEX_QUIET_MODE: "1"
         run: |
           # Codexを使ってドキュメントの品質をチェック
-          codex -a auto-edit "$(cat << 'EOF'
+          codex -a auto-edit  --quiet  "$(cat << 'EOF'
           リポジトリのドキュメントを品質チェックしてください。
           
           以下のチェックリストに従って確認し、必要に応じて修正してください：
