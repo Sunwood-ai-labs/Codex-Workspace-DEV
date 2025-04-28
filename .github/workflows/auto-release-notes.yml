@@ -114,7 +114,7 @@ jobs:
           CURRENT_TAG=${GITHUB_REF#refs/tags/}
           # release_notes.mdが存在する場合はそれを使用
           if [ -f release_notes.md ]; then
-            gh release create ${CURRENT_TAG} --title "Release ${CURRENT_TAG}" --notes-file release_notes.md
+            gh release create ${CURRENT_TAG} --title "🚀 Release ${CURRENT_TAG}" --notes-file release_notes.md
           else
             # Codexが失敗した場合のフォールバック
             echo "# Release ${CURRENT_TAG}" > fallback_notes.md
@@ -127,5 +127,5 @@ jobs:
               echo "## 初回リリース" >> fallback_notes.md
               echo "このリポジトリの初回リリースです。" >> fallback_notes.md
             fi
-            gh release create ${CURRENT_TAG} --title "Release ${CURRENT_TAG}" --notes-file fallback_notes.md
+            gh release create ${CURRENT_TAG} --title "🌟 Release ${CURRENT_TAG}" --notes-file fallback_notes.md
           fi
