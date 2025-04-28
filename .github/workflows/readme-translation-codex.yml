@@ -57,6 +57,10 @@ jobs:
           "
       
       - name: Create PR if translation is created
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CODEX_QUIET_MODE: "1"
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -68,7 +72,7 @@ jobs:
             git commit -m "docs: READMEを英語に翻訳"
             git push origin $BRANCH_NAME
             
-            gh pr create --title "docs: READMEを英語に翻訳" \
+            gh pr create --title "📄 docs: READMEを英語に翻訳" \
                          --body "CodexによってREADMEを英語に翻訳しました。" \
                          --base main \
                          --head $BRANCH_NAME
