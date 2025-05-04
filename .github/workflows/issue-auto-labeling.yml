@@ -1,0 +1,45 @@
+name: Auto Label Issues
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Install OpenAI Codex
+        run: npm install -g @openai/codex
+        
+      - name: Auto-label Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # Codexに必要なラベルを作成・確認してから、issueにラベルを付与させる
+          codex --full-auto  --quiet  "以下の手順で実行してください：
+          
+          Issue番号: #${{ github.event.issue.number }}
+          タイトル: ${{ github.event.issue.title }}
+          内容: ${{ github.event.issue.body }}
+          
+          1. まず現在のラベル一覧を確認：
+          gh label list
+          
+          2. 必要なラベルがない場合は作成（例：bugラベルがない場合）：
+          gh label create bug --color 'ee0701' --description 'バグに関するissue'
+          gh label create documentation --color '0052cc' --description 'ドキュメントに関するissue'
+          gh label create enhancement --color '0e8a16' --description '機能改善・追加の提案'
+          gh label create 'help wanted' --color '5319e7' --description 'サポートが必要なissue'
+          gh label create question --color 'd876e3' --description '質問に関するissue'
+          
+          3. issueの内容を分析して適切なラベルを選択：
+          gh issue edit ${{ github.event.issue.number }} --add-label 'bug'
+          （例：バグの場合は'bug'、ドキュメントの場合は'documentation'）
+          
+          4. 最後に現在のラベル一覧を表示：
+          gh label list"
