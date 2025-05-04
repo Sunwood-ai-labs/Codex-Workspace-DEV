@@ -102,7 +102,9 @@ You can customize each workflow’s Codex prompts to adjust behavior according t
 ## 📝 Important Notes
 
 - Set `CODEX_QUIET_MODE=1` to minimize noise from Codex
-- Use the `-a auto-edit` option to enable auto-approval mode
+- Use the `-a auto-edit` option to enable auto-approval of file edits (commands still require manual approval)
+- Use the `-a full-auto -w <path>` option to automatically approve file edits and commands, bypassing the sandbox (requires specifying a writable root)
+- To disable sandbox, set `FORCE_DISABLE_SANDBOX=true`
 - All operations are executed with Japanese prompts
 
 ## 🤝 Contributing
