@@ -13,15 +13,24 @@ jobs:
     
     steps:
       - name: Install OpenAI Codex
-        run: npm install -g @openai/codex
+        run: npm install -g @openai/codex@0.1.2504251709
         
+      - name: Install GitHub CLI
+        run: |
+          type -p curl >/dev/null || apt install curl -y
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources/github-cli.list > /dev/null \
+          && sudo apt update \
+          && sudo apt install gh -y
+          
       - name: Auto-label Issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           # Codexに必要なラベルを作成・確認してから、issueにラベルを付与させる
-          codex --full-auto  --quiet  "以下の手順で実行してください：
+          codex --full-auto "以下の手順で実行してください：
           
           Issue番号: #${{ github.event.issue.number }}
           タイトル: ${{ github.event.issue.title }}
