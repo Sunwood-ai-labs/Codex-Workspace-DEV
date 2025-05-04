@@ -1,6 +1,6 @@
 <div align="center">
 
-![Image](https://github.com/user-attachments/assets/55514756-c91e-4fe6-8204-73b73aa0bcbf)
+![Image](https://github.com/user-attachments/assets/97666cb8-806a-4a34-8505-517e970fd493)
 
 # 🤖 Codex-Workspace-DEV
 
