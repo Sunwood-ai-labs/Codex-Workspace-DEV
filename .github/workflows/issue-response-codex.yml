@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Install OpenAI Codex
-        run: npm install -g @openai/codex
+        run: npm install -g @openai/codex@0.1.2504251709
         
       - name: Analyze and Plan
         env:
