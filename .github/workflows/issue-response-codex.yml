@@ -151,7 +151,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           # Codexに計画を立てさせ、issueにコメントさせる
-          codex --full-auto  --quiet  "以下のissueに対する対応計画を立て、ghコマンドでコメントしてください：
+          codex --full-auto  --quiet  --model o3 "以下のissueに対する対応計画を立て、ghコマンドでコメントしてください：
           
           Issue番号: #${{ github.event.issue.number }}
           タイトル: ${{ github.event.issue.title }}

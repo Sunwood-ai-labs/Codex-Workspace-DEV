@@ -33,7 +33,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           # Codexに必要なラベルを作成・確認してから、issueにラベルを付与させる
-          codex  --full-auto  --quiet  "以下の手順で実行してください：
+          codex --full-auto  --quiet  --model o3  "以下の手順で実行してください：
           
           Issue番号: #${{ github.event.issue.number }}
           タイトル: ${{ github.event.issue.title }}

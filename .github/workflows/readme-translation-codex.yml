@@ -2,8 +2,8 @@ name: README Translation Bot (Codex)
 
 on:
   push:
-    paths:
-      - 'README.md'
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -34,7 +34,7 @@ jobs:
           CODEX_QUIET_MODE: "1"
         run: |
           # READMEを英語に翻訳するためにCodexを使用
-          codex -a auto-edit  --quiet "
+          codex --full-auto  --quiet  --model o3  "
           README.mdを英語に翻訳してください。
           
           以下の要件に従って翻訳してください：

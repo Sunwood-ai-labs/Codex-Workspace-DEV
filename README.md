@@ -2,16 +2,31 @@
 
 ![Image](https://github.com/user-attachments/assets/55514756-c91e-4fe6-8204-73b73aa0bcbf)
 
-# 🤖 シンプルなGitHub Actions with Codex
+# 🤖 Codex-Workspace-DEV
 
 <p align="center">
+  <!-- Technology & CI/CD -->
   <img src="https://img.shields.io/badge/OpenAI_Codex-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI Codex">
   <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions">
   <img src="https://img.shields.io/badge/Automation-000000?style=for-the-badge&logo=robot&logoColor=white" alt="Automation">
+
+  <!-- Repository Stats -->
+  <img src="https://img.shields.io/github/stars/Sunwood-ai-labs/Codex-Workspace-DEV?style=for-the-badge" alt="GitHub Stars">
+  <img src="https://img.shields.io/github/forks/Sunwood-ai-labs/Codex-Workspace-DEV?style=for-the-badge" alt="GitHub Forks">
+  <img src="https://img.shields.io/github/issues/Sunwood-ai-labs/Codex-Workspace-DEV?style=for-the-badge" alt="Open Issues">
+  <img src="https://img.shields.io/github/last-commit/Sunwood-ai-labs/Codex-Workspace-DEV?style=for-the-badge" alt="Last Commit">
+  <img src="https://img.shields.io/github/contributors/Sunwood-ai-labs/Codex-Workspace-DEV?style=for-the-badge" alt="Contributors">
+
+  <!-- License -->
+  <img src="https://img.shields.io/github/license/Sunwood-ai-labs/Codex-Workspace-DEV?style=for-the-badge" alt="License">
 </p>
 
 <p align="center">
-  OpenAI Codexを活用したシンプルで効率的なGitHub Actionsワークフロー集
+  Codex-Workspace-DEV: OpenAI Codexを活用した開発ワークスペース向けGitHub Actionsワークフロー集
+</p>
+
+<p align="center">
+  🔗 本番リポジトリはこちら → <a href="https://github.com/Sunwood-ai-labs/Codex-Workspace">Sunwood-ai-labs/Codex-Workspace</a>
 </p>
 
 </div>
