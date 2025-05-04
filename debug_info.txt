@@ -1,0 +1,85 @@
+## 🔍 デバッグ情報
+<details>
+<summary>詳細情報（クリックして展開）</summary>
+
+サンドボックスエラー「Sandbox was mandated, but no sandbox is available!」のデバッグ情報：
+
+### システム環境
+```
+Linux fv-az1774-982 6.11.0-1012-azure #12~24.04.1-Ubuntu SMP Mon Mar 10 19:00:39 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.2 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.2 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+```
+
+### Node.js & npm 情報
+```
+Node.js: v20.19.1
+npm: 10.8.2
+```
+
+### Codex情報
+```
+Version: 0.1.2504251709
+Path: /usr/local/bin/codex
+Package info: 
+/usr/local/lib
+└── @openai/codex@0.1.2504251709
+```
+
+### 利用可能なCodexバージョン
+```
+[
+  "0.1.2504220136",
+  "0.1.2504221401",
+  "0.1.2504251709",
+  "0.1.2504301751",
+  "0.1.2505021246"
+]
+```
+
+### サンドボックス関連
+/proc/1/cgroup ファイル: ✅ 存在します
+```
+0::/init.scope
+```
+
+### Codexヘルプ情報
+```
+
+  Usage
+    $ codex [options] <prompt>
+    $ codex completion <bash|zsh|fish>
+
+  Options
+    --version                       Print version and exit
+
+    -h, --help                      Show usage and exit
+    -m, --model <model>             Model to use for completions (default: o4-mini)
+    -p, --provider <provider>       Provider to use for completions (default: openai)
+    -i, --image <path>              Path(s) to image files to include as input
+    -v, --view <rollout>            Inspect a previously saved rollout instead of starting a session
+    -q, --quiet                     Non-interactive mode that only prints the assistant's final output
+    -c, --config                    Open the instructions file in your editor
+    -w, --writable-root <path>      Writable folder for sandbox in full-auto mode (can be specified multiple times)
+    -a, --approval-mode <mode>      Override the approval policy: 'suggest', 'auto-edit', or 'full-auto'
+
+    --auto-edit                Automatically approve file edits; still prompt for commands
+    --full-auto                Automatically approve edits and commands when executed in the sandbox
+```
+
+### 対応策
+1. `--approval=auto` または `--approval=manual` オプションを試す
+2. 最新バージョンに更新: `npm install -g @openai/codex@latest`
+3. 環境変数の設定: `FORCE_DISABLE_SANDBOX=true codex ...`
+</details>
