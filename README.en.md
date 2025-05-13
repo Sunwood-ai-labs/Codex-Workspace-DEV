@@ -33,14 +33,14 @@
 
 ## 🚀 Overview
 
-This repository is a lightweight collection of workflows that harness the powerful capabilities of OpenAI Codex within GitHub Actions to automate your repository. By avoiding heavy processing and focusing on essential features, it achieves both simplicity and efficiency.
+This repository is a lightweight collection of workflows that leverage the powerful capabilities of OpenAI Codex within GitHub Actions to automate your repository. By avoiding heavy processing and focusing on only the essential features, it achieves both simplicity and efficiency.
 
 ## ✨ Features
 
-- 💬 **Issue Auto-Response**: Codex analyzes new or updated issues and provides appropriate replies or fixes
-- 📝 **Documentation Quality Check**: Automatically checks the quality of README and other documentation, and proposes improvements via PR
+- 💬 **Issue Auto-Response**: Codex analyzes new or updated issues and provides appropriate responses or fixes
+- 📝 **Document Quality Check**: Automatically reviews the quality of README and other documentation, proposing enhancements through pull requests
 - 🔍 **Code Review**: Automatically reviews PR code and suggests improvements
-- 🌐 **README Translation**: Automatically translates README.md to Japanese and creates a PR
+- 🌐 **README Translation**: Automatically translates README.md into Japanese and creates a pull request
 
 ## 📦 Setup
 
@@ -53,76 +53,76 @@ git clone https://github.com/<USERNAME>/<REPO>.git
 cd <REPO>
 ```
 
-### 2. Create .env file
+### 2. Create the .env file
 
 ```bash
 cp .env.example .env
 ```
-
 Open the `.env` file and set the following environment variables:
 
-* `OPENAI_API_KEY`    : OpenAI API key
-* `GITHUB_TOKEN`      : GitHub API token (optional; automatically provided in GitHub Actions)
-* `CODEX_QUIET_MODE`  : Codex quiet mode (e.g., `1`)
+* `OPENAI_API_KEY`    : OpenAI API key  
+* `GITHUB_TOKEN`      : GitHub API token (optional; automatically provided in GitHub Actions)  
+* `CODEX_QUIET_MODE`  : Codex quiet mode (e.g., `1`)  
 
-### 3. Configure Secrets (for GitHub Actions)
+### 3. Configure secrets (for GitHub Actions)
 
-In your GitHub repository, go to Settings > Secrets and add the following:
+Add the following in the GitHub repository under Settings > Secrets:
 
-* `OPENAI_API_KEY` : OpenAI API key
+* `OPENAI_API_KEY` : OpenAI API key  
 
-### 4. Enable Workflows
+### 4. Enable the workflows
 
-Workflow files in `.github/workflows/` will be automatically enabled.
+The workflow files in `.github/workflows/` will be automatically enabled.
 
 ## 🛠️ Usage
 
 ### Issue Auto-Response
 
 1. Create or update an issue
-2. Codex analyzes the content and posts an appropriate reply
-3. If code changes are needed, a PR is automatically created
+2. Codex analyzes the content and posts an appropriate response
+3. If code changes are needed, it automatically creates a pull request
 
-### Documentation Quality Check
+### Document Quality Check
 
-1. Push a markdown file or create a PR
-2. Codex checks quality and automatically applies improvements
-3. Propose the changes as a PR
+1. Push a Markdown file or create a pull request
+2. Codex checks the quality and automatically applies improvements
+3. Proposes the improvements as a pull request
 
 ### Code Review
 
-1. Create a new PR
+1. Create a new pull request
 2. Codex reviews the changes
-3. Posts improvement suggestions as comments
+3. Posts suggestions as comments
 
 ### README Translation
 
 1. Update README.md
-2. Automatically creates a Japanese version
-3. Creates a PR with README.ja.md
+2. Automatically generate a Japanese version
+3. Create a pull request as README.ja.md
 
 ## ⚙️ Workflow List
 
-| Workflow                          | Trigger                | Description                         |
-|-----------------------------------|------------------------|-------------------------------------|
-| `issue-response-codex.yml`        | Issue creation/update  | Auto-response to issues             |
-| `document-quality-check.yml`      | Markdown file changes  | Documentation quality check         |
-| `code-review-codex.yml`           | PR creation/update     | Code review                         |
-| `readme-translation-codex.yml`    | README.md changes      | Japanese translation                |
+| Workflow                         | Trigger                     | Description                    |
+|----------------------------------|-----------------------------|--------------------------------|
+| `issue-response-codex.yml`       | Issue creation/update       | Automatic issue response       |
+| `document-quality-check.yml`     | Markdown file change        | Document quality check         |
+| `code-review-codex.yml`          | PR creation/update          | Code review                    |
+| `readme-translation-codex.yml`   | README.md change            | Japanese translation           |
 
 ## 🔧 Customization
 
-You can customize each workflow’s Codex prompts to adjust behavior according to your project's needs.
+You can adjust the behavior to fit your project's needs by customizing the Codex prompts in each workflow.
 
-## 📝 Important Notes
+## 📝 Notes
 
-- Set `CODEX_QUIET_MODE=1` to minimize noise from Codex
-- Use the `-a auto-edit` option to enable auto-approval mode
-- All operations are executed with Japanese prompts
+- Set `CODEX_QUIET_MODE=1` to minimize noise from Codex  
+- Use the `-a auto-edit` option to enable auto-approval mode  
+- Note that without full auto mode (`--auto` or `-y`), external commands such as `gh` will not run, and the process will be skipped  
+- All operations are performed using Japanese prompts
 
-## 🤝 Contributing
+## 🤝 Contribution
 
-Please open an issue for suggestions or bug reports. PRs are also welcome!
+For suggestions or bug reports, please open an Issue. Pull requests are welcome!
 
 ## 📄 License
 
